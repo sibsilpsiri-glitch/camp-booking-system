@@ -3,98 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจองที่นอน ค่ายอาสา มหาวิทยาลัยช่อแก้ว</title>
+    <title>ระบบจองที่นอนค่ายอาสา | มหาวิทยาลัยช่อแก้ว</title>
+    
+    <!-- Google Fonts: Prompt -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts (ฟอนต์ไม่มีหัว) -->
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
     
-    <!-- Firebase SDK (ใส่เวอร์ชันล่าสุด) -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <!-- SweetAlert2 สำหรับ Popup กรอกข้อมูล -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- Firebase SDK (อิมพอร์ตแบบ Module) -->
+    <script type="module" src="app.js" defer></script>
+    
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-50 text-gray-800 antialiased min-h-screen font-prompt">
+<body class="bg-gray-50 text-gray-800 antialiased min-h-screen flex flex-col items-center py-10">
 
-    <!-- Header -->
-    <header class="bg-white shadow-sm py-6 mb-8">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            <h1 class="text-3xl font-semibold text-gray-900">ผังการจองที่นอน ค่ายอาสา</h1>
-            <p class="text-gray-500 mt-2">อาคารศูนย์ประชุม มหาวิทยาลัยช่อแก้ว</p>
-            <div class="flex justify-center gap-6 mt-4 text-sm">
-                <span class="flex items-center gap-2"><div class="w-4 h-4 bg-gray-200 border border-gray-300 rounded"></div> ว่าง</span>
-                <span class="flex items-center gap-2"><div class="w-4 h-4 bg-blue-500 rounded"></div> ชาย (จองแล้ว)</span>
-                <span class="flex items-center gap-2"><div class="w-4 h-4 bg-pink-500 rounded"></div> หญิง (จองแล้ว)</span>
-            </div>
+    <header class="text-center mb-8 w-full max-w-4xl px-4">
+        <h1 class="text-3xl font-semibold text-gray-900 tracking-tight">ระบบจองที่พัก ค่ายอาสา</h1>
+        <p class="text-gray-500 mt-2">อาคารศูนย์ประชุม มหาวิทยาลัยช่อแก้ว</p>
+        
+        <div class="flex justify-center gap-6 mt-6 text-sm">
+            <div class="flex items-center gap-2"><div class="w-4 h-4 bg-blue-100 border border-blue-300 rounded"></div> ว่าง (ชาย)</div>
+            <div class="flex items-center gap-2"><div class="w-4 h-4 bg-pink-100 border border-pink-300 rounded"></div> ว่าง (หญิง)</div>
+            <div class="flex items-center gap-2"><div class="w-4 h-4 bg-gray-400 rounded"></div> ถูกจองแล้ว</div>
         </div>
     </header>
 
     <!-- Map Container -->
-    <main class="max-w-6xl mx-auto px-4 pb-12 overflow-x-auto">
-        <div class="relative bg-white border-2 border-gray-300 rounded-lg p-10 min-w-[800px] mx-auto shadow-sm">
+    <main class="relative bg-white shadow-xl rounded-xl p-8 border border-gray-200 w-full max-w-[1200px] overflow-x-auto">
+        <!-- ประตู -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-4 py-1 text-xs font-medium border-2 border-gray-300 text-gray-500 rounded-sm">ประตูหน้า</div>
+        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 bg-white px-4 py-1 text-xs font-medium border-2 border-gray-300 text-gray-500 rounded-sm">ประตูหลัง</div>
+        <div class="absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 bg-white px-1 py-4 text-xs font-medium border-2 border-gray-300 text-gray-500 rounded-sm writing-vertical">ประตูซ้าย</div>
+        <div class="absolute top-1/2 right-0 translate-x-1/2 -translate-y-1/2 bg-white px-1 py-4 text-xs font-medium border-2 border-gray-300 text-gray-500 rounded-sm writing-vertical">ประตูขวา</div>
+
+        <!-- แผนผังที่นอน -->
+        <div class="flex flex-col md:flex-row gap-8 justify-center items-stretch min-w-[800px]">
             
-            <!-- ประตู (Doors) -->
-            <div class="absolute top-0 left-1/2 -translate-x-1/2 -mt-4 bg-gray-800 text-white px-4 py-1 text-xs rounded">ประตูหน้า</div>
-            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 mb-[-16px] bg-gray-800 text-white px-4 py-1 text-xs rounded">ประตูหลัง</div>
-            <div class="absolute left-0 top-1/2 -translate-y-1/2 -ml-8 -rotate-90 bg-gray-800 text-white px-4 py-1 text-xs rounded">ประตูซ้าย</div>
-            <div class="absolute right-0 top-1/2 -translate-y-1/2 -mr-8 rotate-90 bg-gray-800 text-white px-4 py-1 text-xs rounded">ประตูขวา</div>
-
-            <div class="flex gap-8 relative">
-                <!-- โซนชาย (230 ที่) -->
-                <div class="w-[55%]">
-                    <h2 class="text-center text-blue-600 font-medium mb-6 text-lg">โซนชาย (230 ที่นอน)</h2>
-                    <div id="male-zone" class="grid grid-cols-10 gap-2"></div>
-                </div>
-
-                <!-- เส้นแบ่งโซน -->
-                <div class="w-0.5 bg-gray-300 mx-2 flex-shrink-0 relative">
-                    <div class="absolute top-1/2 -translate-y-1/2 bg-white px-2 py-4 border border-gray-300 rounded text-xs text-gray-500 text-center tracking-widest whitespace-nowrap -ml-4" style="writing-mode: vertical-rl;">เส้นแบ่งโซน</div>
-                </div>
-
-                <!-- โซนหญิง (160 ที่) -->
-                <div class="w-[45%]">
-                    <h2 class="text-center text-pink-600 font-medium mb-6 text-lg">โซนหญิง (160 ที่นอน)</h2>
-                    <div id="female-zone" class="grid grid-cols-8 gap-2"></div>
-                </div>
+            <!-- โซนผู้ชาย 230 ที่ -->
+            <div class="flex-1">
+                <h2 class="text-center font-medium text-blue-700 mb-4 border-b border-blue-200 pb-2">โซนชาย (230 ที่)</h2>
+                <div id="male-zone" class="spot-grid"></div>
             </div>
+
+            <!-- เส้นแบ่งโซน -->
+            <div class="hidden md:block w-px bg-dashed bg-gray-300 relative">
+                <div class="absolute top-1/2 -translate-y-1/2 bg-white text-gray-400 text-xs py-2 px-1 rounded-full border border-gray-200">ทางเดิน</div>
+            </div>
+
+            <!-- โซนผู้หญิง 160 ที่ -->
+            <div class="flex-1">
+                <h2 class="text-center font-medium text-pink-700 mb-4 border-b border-pink-200 pb-2">โซนหญิง (160 ที่)</h2>
+                <div id="female-zone" class="spot-grid"></div>
+            </div>
+
         </div>
     </main>
 
-    <!-- Modal ฟอร์มจอง / ดูข้อมูล -->
-    <div id="booking-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50 px-4">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-md p-6 relative">
-            <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">✕</button>
-            <h3 id="modal-title" class="text-xl font-semibold mb-4 text-gray-900">จองที่นอนหมายเลข: <span id="seat-number-display"></span></h3>
-            
-            <form id="booking-form" class="space-y-4">
-                <input type="hidden" id="seat-id">
-                <input type="hidden" id="seat-zone">
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block text-sm text-gray-600 mb-1">ชื่อ-นามสกุล</label><input type="text" id="fullname" required class="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm"></div>
-                    <div><label class="block text-sm text-gray-600 mb-1">ชื่อเล่น</label><input type="text" id="nickname" required class="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm"></div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div><label class="block text-sm text-gray-600 mb-1">คณะ</label><input type="text" id="faculty" required class="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm"></div>
-                    <div><label class="block text-sm text-gray-600 mb-1">ชั้นปี</label><input type="number" min="1" max="6" id="year" required class="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm"></div>
-                </div>
-                <div><label class="block text-sm text-gray-600 mb-1">สังกัด</label><input type="text" id="affiliation" required class="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm"></div>
-                <div><label class="block text-sm text-gray-600 mb-1">Account Mixi2</label><input type="text" id="mixi2" required class="w-full border border-gray-300 rounded p-2 focus:ring-2 focus:ring-blue-500 outline-none text-sm"></div>
-                
-                <button type="submit" id="submit-btn" class="w-full bg-gray-900 text-white font-medium py-2 rounded mt-4 hover:bg-gray-800 transition">ยืนยันการจอง</button>
-            </form>
+    <footer class="mt-12 text-sm text-gray-400">
+        &copy; 2026 มหาวิทยาลัยช่อแก้ว. สงวนลิขสิทธิ์
+    </footer>
 
-            <!-- ส่วนแสดงข้อมูลเมื่อถูกจองแล้ว -->
-            <div id="booked-info" class="hidden space-y-3 text-sm text-gray-700 bg-gray-50 p-4 rounded border border-gray-100">
-                <p><strong>ผู้จอง:</strong> <span id="info-name"></span> (<span id="info-nick"></span>)</p>
-                <p><strong>คณะ/ปี:</strong> <span id="info-fac"></span> ปี <span id="info-year"></span></p>
-                <p><strong>สังกัดมหาลัย:</strong> <span id="info-aff"></span></p>
-                <p><strong>Mixi2:</strong> <span id="info-mix"></span></p>
-                <div class="mt-4 text-center text-red-500 text-xs">*ที่นอนนี้ถูกจองแล้ว ไม่สามารถยกเลิกได้</div>
-            </div>
-        </div>
-    </div>
-
-    <script src="app.js"></script>
 </body>
 </html>
