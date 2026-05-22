@@ -1,0 +1,32 @@
+body {
+    font-family: 'Prompt', sans-serif;
+}
+.seat {
+    aspect-ratio: 1 / 1.2;
+    border: 1px solid #e5e7eb;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background-color: #f9fafb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    color: #9ca3af;
+}
+.seat:hover:not(.booked) {
+    border-color: #9ca3af;
+    transform: scale(1.05);
+}
+.seat.booked.male {
+    background-color: #3b82f6; /* Blue-500 */
+    border-color: #2563eb;
+    color: white;
+    cursor: pointer; /* ยังกดดูได้ */
+}
+.seat.booked.female {
+    background-color: #ec4899; /* Pink-500 */
+    border-color: #db2777;
+    color: white;
+    cursor: pointer; /* ยังกดดูได้ */
+}
