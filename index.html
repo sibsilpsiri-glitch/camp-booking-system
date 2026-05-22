@@ -3,69 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ระบบจองที่นอนค่ายอาสา | มหาวิทยาลัยช่อแก้ว</title>
-    
-    <!-- Google Fonts: Prompt -->
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- SweetAlert2 สำหรับ Popup กรอกข้อมูล -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <!-- Firebase SDK (อิมพอร์ตแบบ Module) -->
-    <script type="module" src="app.js" defer></script>
-    
+    <title>ระบบจองที่นอนค่ายอาสา - มหาวิทยาลัยช่อแก้ว</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
-<body class="bg-gray-50 text-gray-800 antialiased min-h-screen flex flex-col items-center py-10">
-
-    <header class="text-center mb-8 w-full max-w-4xl px-4">
-        <h1 class="text-3xl font-semibold text-gray-900 tracking-tight">ระบบจองที่พัก ค่ายอาสา</h1>
-        <p class="text-gray-500 mt-2">อาคารศูนย์ประชุม มหาวิทยาลัยช่อแก้ว</p>
-        
-        <div class="flex justify-center gap-6 mt-6 text-sm">
-            <div class="flex items-center gap-2"><div class="w-4 h-4 bg-blue-100 border border-blue-300 rounded"></div> ว่าง (ชาย)</div>
-            <div class="flex items-center gap-2"><div class="w-4 h-4 bg-pink-100 border border-pink-300 rounded"></div> ว่าง (หญิง)</div>
-            <div class="flex items-center gap-2"><div class="w-4 h-4 bg-gray-400 rounded"></div> ถูกจองแล้ว</div>
-        </div>
+<body>
+    <header class="navbar">
+        <h1>ศูนย์ประชุม มหาวิทยาลัยช่อแก้ว</h1>
+        <p>ระบบจองที่นอนค่ายอาสา ประจำปี 2569</p>
     </header>
 
-    <!-- Map Container -->
-    <main class="relative bg-white shadow-xl rounded-xl p-8 border border-gray-200 w-full max-w-[1200px] overflow-x-auto">
-        <!-- ประตู -->
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-4 py-1 text-xs font-medium border-2 border-gray-300 text-gray-500 rounded-sm">ประตูหน้า</div>
-        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 bg-white px-4 py-1 text-xs font-medium border-2 border-gray-300 text-gray-500 rounded-sm">ประตูหลัง</div>
-        <div class="absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 bg-white px-1 py-4 text-xs font-medium border-2 border-gray-300 text-gray-500 rounded-sm writing-vertical">ประตูซ้าย</div>
-        <div class="absolute top-1/2 right-0 translate-x-1/2 -translate-y-1/2 bg-white px-1 py-4 text-xs font-medium border-2 border-gray-300 text-gray-500 rounded-sm writing-vertical">ประตูขวา</div>
+    <main class="container">
+        <div class="legend">
+            <div class="legend-item"><span class="box available-m"></span> ว่าง (ชาย)</div>
+            <div class="legend-item"><span class="box available-f"></span> ว่าง (หญิง)</div>
+            <div class="legend-item"><span class="box booked"></span> จองแล้ว</div>
+        </div>
 
-        <!-- แผนผังที่นอน -->
-        <div class="flex flex-col md:flex-row gap-8 justify-center items-stretch min-w-[800px]">
+        <div class="hall-layout">
+            <div class="door door-top">ประตูหน้า</div>
             
-            <!-- โซนผู้ชาย 230 ที่ -->
-            <div class="flex-1">
-                <h2 class="text-center font-medium text-blue-700 mb-4 border-b border-blue-200 pb-2">โซนชาย (230 ที่)</h2>
-                <div id="male-zone" class="spot-grid"></div>
+            <div class="floor-plan">
+                <div class="door door-left">ประตูซ้าย</div>
+                
+                <div class="zone zone-male">
+                    <h2>โซนชาย (230 ที่)</h2>
+                    <div id="male-seats" class="seat-grid male-grid"></div>
+                </div>
+
+                <div class="divider">
+                    <span>ทางเดินกั้นโซน</span>
+                </div>
+
+                <div class="zone zone-female">
+                    <h2>โซนหญิง (160 ที่)</h2>
+                    <div id="female-seats" class="seat-grid female-grid"></div>
+                </div>
+                
+                <div class="door door-right">ประตูขวา</div>
             </div>
 
-            <!-- เส้นแบ่งโซน -->
-            <div class="hidden md:block w-px bg-dashed bg-gray-300 relative">
-                <div class="absolute top-1/2 -translate-y-1/2 bg-white text-gray-400 text-xs py-2 px-1 rounded-full border border-gray-200">ทางเดิน</div>
-            </div>
-
-            <!-- โซนผู้หญิง 160 ที่ -->
-            <div class="flex-1">
-                <h2 class="text-center font-medium text-pink-700 mb-4 border-b border-pink-200 pb-2">โซนหญิง (160 ที่)</h2>
-                <div id="female-zone" class="spot-grid"></div>
-            </div>
-
+            <div class="door door-bottom">ประตูหลัง</div>
         </div>
     </main>
 
-    <footer class="mt-12 text-sm text-gray-400">
-        &copy; 2026 มหาวิทยาลัยช่อแก้ว. สงวนลิขสิทธิ์
-    </footer>
+    <!-- Modal กรอกข้อมูลจอง -->
+    <div id="booking-modal" class="modal">
+        <div class="modal-content">
+            <h3 id="modal-title">ยืนยันการจองที่นอน</h3>
+            <p id="selected-seat-label" class="seat-label"></p>
+            <form id="booking-form">
+                <input type="hidden" id="seat-id">
+                <div class="form-group">
+                    <label>ชื่อ-นามสกุล</label>
+                    <input type="text" id="fullname" required placeholder="เช่น นายสมชาย ใจดี">
+                </div>
+                <div class="form-group">
+                    <label>ชื่อเล่น</label>
+                    <input type="text" id="nickname" required>
+                </div>
+                <div class="form-group">
+                    <label>คณะ</label>
+                    <input type="text" id="faculty" required>
+                </div>
+                <div class="form-group">
+                    <label>ชั้นปี</label>
+                    <select id="year" required>
+                        <option value="">เลือกชั้นปี</option>
+                        <option value="1">ปี 1</option>
+                        <option value="2">ปี 2</option>
+                        <option value="3">ปี 3</option>
+                        <option value="4">ปี 4+</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>สังกัดฝ่าย / ชมรม</label>
+                    <input type="text" id="department" required>
+                </div>
+                <div class="form-group">
+                    <label>Account Mixi2</label>
+                    <input type="text" id="mixi2" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-cancel" onclick="closeModal()">ยกเลิก</button>
+                    <button type="submit" class="btn btn-confirm">ยืนยันการจอง (ไม่สามารถยกเลิกได้)</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
+    <!-- Modal ดูข้อมูลคนจอง -->
+    <div id="info-modal" class="modal">
+        <div class="modal-content info-card">
+            <h3>ข้อมูลผู้จองที่นอน <span id="info-seat-id"></span></h3>
+            <div class="info-details">
+                <p><strong>ชื่อ-นามสกุล:</strong> <span id="info-fullname"></span></p>
+                <p><strong>ชื่อเล่น:</strong> <span id="info-nickname"></span></p>
+                <p><strong>คณะ:</strong> <span id="info-faculty"></span> ชั้นปี <span id="info-year"></span></p>
+                <p><strong>สังกัด:</strong> <span id="info-department"></span></p>
+                <p><strong>Mixi2:</strong> <span id="info-mixi2"></span></p>
+            </div>
+            <button class="btn btn-cancel full-width" onclick="closeInfoModal()">ปิดหน้าต่าง</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>
